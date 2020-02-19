@@ -24,48 +24,61 @@ public class Mesh {
     public void create() {
         material.create();
 
-        vao = GL30.glGenVertexArrays();
-        GL30.glBindVertexArray(vao);
+        FloatBuffer positionBuffer = null;
+        FloatBuffer colorBuffer = null;
+        FloatBuffer textureBuffer = null;
+        IntBuffer indiciesBuffer = null;
 
-        FloatBuffer positionBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
-        float[] posData = new float[vertices.length*3];
-        for(int i = 0; i < vertices.length; i++) {
-            posData[i * 3] = vertices[i].getPosition().getX();
-            posData[i * 3 + 1] = vertices[i].getPosition().getY();
-            posData[i * 3 + 2] = vertices[i].getPosition().getZ();
+
+        try {
+            vao = GL30.glGenVertexArrays();
+            GL30.glBindVertexArray(vao);
+
+            positionBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
+            float[] posData = new float[vertices.length*3];
+            for(int i = 0; i < vertices.length; i++) {
+                posData[i * 3] = vertices[i].getPosition().getX();
+                posData[i * 3 + 1] = vertices[i].getPosition().getY();
+                posData[i * 3 + 2] = vertices[i].getPosition().getZ();
+            }
+            positionBuffer.put(posData).flip();
+
+            pbo = storeData(positionBuffer, 0, 3);
+
+            colorBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
+            float[] colorData = new float[vertices.length*3];
+            for(int i = 0; i < vertices.length; i++) {
+                colorData[i * 3] = vertices[i].getColor().getX();
+                colorData[i * 3 + 1] = vertices[i].getColor().getY();
+                colorData[i * 3 + 2] = vertices[i].getColor().getZ();
+            }
+            colorBuffer.put(colorData).flip();
+
+            cbo = storeData(colorBuffer, 1,3);
+
+            textureBuffer = MemoryUtil.memAllocFloat(vertices.length * 2);
+            float[] textureData = new float[vertices.length* 2];
+            for(int i = 0; i < vertices.length; i++) {
+                textureData[i * 2] = vertices[i].getTextureCoord().getX();
+                textureData[i * 2 + 1] = vertices[i].getTextureCoord().getY();
+            }
+            textureBuffer.put(textureData).flip();
+
+            tbo = storeData(textureBuffer, 2,2);
+
+            indiciesBuffer = MemoryUtil.memAllocInt(indices.length);
+            indiciesBuffer.put(indices).flip();
+
+            ibo = GL15.glGenBuffers();
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
+            GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indiciesBuffer, GL15.GL_STATIC_DRAW);
+            GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+        } finally {
+            if(positionBuffer != null) MemoryUtil.memFree(positionBuffer);
+            if(colorBuffer != null) MemoryUtil.memFree(colorBuffer);
+            if(textureBuffer != null) MemoryUtil.memFree(textureBuffer);
+            if(indiciesBuffer != null) MemoryUtil.memFree(indiciesBuffer);
         }
-        positionBuffer.put(posData).flip();
-
-        pbo = storeData(positionBuffer, 0, 3);
-
-        FloatBuffer colorBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
-        float[] colorData = new float[vertices.length*3];
-        for(int i = 0; i < vertices.length; i++) {
-            colorData[i * 3] = vertices[i].getColor().getX();
-            colorData[i * 3 + 1] = vertices[i].getColor().getY();
-            colorData[i * 3 + 2] = vertices[i].getColor().getZ();
-        }
-        colorBuffer.put(colorData).flip();
-
-        cbo = storeData(colorBuffer, 1,3);
-
-        FloatBuffer textureBuffer = MemoryUtil.memAllocFloat(vertices.length * 2);
-        float[] textureData = new float[vertices.length* 2];
-        for(int i = 0; i < vertices.length; i++) {
-            textureData[i * 2] = vertices[i].getTextureCoord().getX();
-            textureData[i * 2 + 1] = vertices[i].getTextureCoord().getY();
-        }
-        textureBuffer.put(textureData).flip();
-
-        tbo = storeData(textureBuffer, 2,2);
-
-        IntBuffer indiciesBuffer = MemoryUtil.memAllocInt(indices.length);
-        indiciesBuffer.put(indices).flip();
-
-        ibo = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
-        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indiciesBuffer, GL15.GL_STATIC_DRAW);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     private int storeData(FloatBuffer buffer, int index, int size) {
