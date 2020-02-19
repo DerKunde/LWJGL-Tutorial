@@ -22,7 +22,6 @@ public class Mesh {
     }
 
     public void create() {
-        material.create();
 
         FloatBuffer positionBuffer = null;
         FloatBuffer colorBuffer = null;
@@ -31,6 +30,8 @@ public class Mesh {
 
 
         try {
+
+            material.create();
             vao = GL30.glGenVertexArrays();
             GL30.glBindVertexArray(vao);
 
@@ -95,8 +96,6 @@ public class Mesh {
         GL15.glDeleteBuffers(cbo);
         GL15.glDeleteBuffers(ibo);
         GL15.glDeleteBuffers(tbo);
-
-        material.destroy();
 
         GL30.glDeleteVertexArrays(vao);
     }

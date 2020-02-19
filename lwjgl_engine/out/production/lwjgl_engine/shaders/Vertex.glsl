@@ -8,7 +8,7 @@ out vec3 passColor;
 out vec2 passTextureCoord;
 
 void main() {
-    gl_Position = vec4 (position, 1.0f);
+    gl_Position = vec4 (position, 1.0);
     passColor = color;
     passTextureCoord = textureCoord;
 }

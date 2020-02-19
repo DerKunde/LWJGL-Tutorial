@@ -49,8 +49,12 @@ public class Shader {
             return;
         }
 
+        GL20.glDetachShader(programID, vertexID);
+        GL20.glDetachShader(programID, fragmentID);
+
         GL20.glDeleteShader(vertexID);
         GL20.glDeleteShader(fragmentID);
+
     }
 
     public void bind() {
